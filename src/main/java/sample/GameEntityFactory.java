@@ -13,11 +13,16 @@ public class GameEntityFactory  implements EntityFactory {
 
     @Spawns("platform")
     public Entity newPlatform(SpawnData data) {
+        HitBox hitBox = new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height")));
+        PhysicsComponent physics = new PhysicsComponent();
+        physics.addGroundSensor(hitBox);
+
         return Entities.builder()
                 .type(GameTypes.PLATFORM)
                 .from(data)
-                .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
-                .with(new PhysicsComponent())
+                .bbox(hitBox)
+                .with(physics)
+                .with(new CollidableComponent(true))
                 .build();
     }
 
@@ -37,13 +42,14 @@ public class GameEntityFactory  implements EntityFactory {
     public Entity newPlayer(SpawnData data) {
         PhysicsComponent physics = new PhysicsComponent();
         physics.setBodyType(BodyType.DYNAMIC);
+        physics.addGroundSensor(new HitBox(BoundingShape.box(66, 92)));
 
         return Entities.builder()
                 .type(GameTypes.PLAYER)
                 .from(data)
-                .viewFromNodeWithBBox(new Rectangle(30, 30, Color.BLUE))
+                .viewFromNodeWithBBox(new Rectangle(66, 92, Color.BLUE))
                 .with(physics)
-                .with(new PlayerController())
+                .with(new PlayerComponent())
                 .with(new CollidableComponent(true))
                 .build();
     }
@@ -56,6 +62,15 @@ public class GameEntityFactory  implements EntityFactory {
                 .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
                 .with(new PhysicsComponent())
                 .with(new CollidableComponent(true))
+                .build();
+    }
+
+    @Spawns("spawn")
+    public Entity newSpawner(SpawnData data) {
+
+        return Entities.builder()
+                .type(GameTypes.SPAWN)
+                .from(data)
                 .build();
     }
 }
